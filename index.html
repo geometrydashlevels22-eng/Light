@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   
+  <meta name="theme-color" content="#1e1e24">
+
   <meta name="apple-mobile-web-app-title" content="Room Light">
   <meta name="application-name" content="Room Light">
 
@@ -16,11 +18,17 @@
 
   <title>Vertical Room Light Switch App</title>
   <style>
-    /* --- MAIN ROOM BACKGROUND --- */
-    body {
+    /* Ensure the absolute root elements have zero spacing and inherit the dark background */
+    html, body {
       margin: 0;
       padding: 0;
+      width: 100%;
       height: 100vh;
+      background-color: #111115; /* Fallback dark color */
+    }
+
+    /* --- MAIN ROOM BACKGROUND --- */
+    body {
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -83,7 +91,6 @@
         0 20px 40px rgba(0, 0, 0, 0.1);
     }
 
-    /* Swapped dimensions for Vertical Pill Profile */
     .toggle-label {
       position: relative;
       display: block;
@@ -98,7 +105,6 @@
         inset 0 -3px 6px rgba(255, 255, 255, 0.1);
     }
 
-    /* Golden background backing layer that fades in */
     .toggle-label::before {
       content: '';
       position: absolute;
@@ -113,7 +119,6 @@
     }
 
     /* --- SWITCH INDOOR LIGHTING ASSETS --- */
-    /* Dark Mode Asset: Hanging Ceiling Lamp Silhouette */
     .dark-assets {
       position: absolute;
       width: 100%;
@@ -135,7 +140,6 @@
       border-radius: 2px 2px 12px 12px;
     }
 
-    /* Light Mode Asset: Lamp */
     .light-assets {
       position: absolute;
       width: 100%;
@@ -198,7 +202,6 @@
       opacity: 0.5;
     }
 
-    /* Animation classes */
     .smooth-animate {
       transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
@@ -305,6 +308,10 @@
       const roomOffTop = [30, 30, 36], roomOffBot = [17, 17, 21];
       const roomOnTop = [254, 252, 232], roomOnBot = [253, 230, 138];
       document.body.style.background = `linear-gradient(to bottom, ${mixColors(roomOffTop, roomOnTop, percentage)} 0%, ${mixColors(roomOffBot, roomOnBot, percentage)} 100%)`;
+
+      // Update theme meta color tag dynamically as the gradient changes
+      const currentTopColor = mixColors(roomOffTop, roomOnTop, percentage);
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', currentTopColor);
 
       document.body.style.color = mixColors([244, 244, 245], [24, 24, 27], percentage);
       modeTitle.style.color = mixColors([255, 255, 255], [146, 64, 14], percentage);
