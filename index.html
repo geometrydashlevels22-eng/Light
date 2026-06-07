@@ -275,8 +275,12 @@
     async function sendGoveeCommand(macAddress, turnOn) {
       const url = 'https://developer-api.govee.com/v1/devices/control';
       
+      // Clean up the MAC address formatting automatically:
+      // Removes colons and makes all letters lowercase (e.g., e072a17f0c84)
+      const cleanMac = macAddress.replace(/:/g, '').toLowerCase();
+
       const data = {
-        device: macAddress,
+        device: cleanMac,
         model: MODEL,
         cmd: {
           name: 'turn',
