@@ -2,21 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   
   <meta name="theme-color" content="#1e1e24">
 
-  <meta name="apple-mobile-web-app-title" content="Light">
-  <meta name="application-name" content="Light">
+  <meta name="apple-mobile-web-app-title" content="Room Light">
+  <meta name="application-name" content="Room Light">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <link rel="apple-touch-icon" href="icon.jpg">
-  <link rel="icon" sizes="192x192" href="icon.jpg">
+  <link rel="apple-touch-icon" href="icon.png?v=1">
+  <link rel="icon" sizes="192x192" href="icon.png?v=1">
 
-  <title>JFFFI's Room Light</title>
+  <title>Vertical Room Light Switch App</title>
   <style>
     /* Ensure the absolute root elements have zero spacing and inherit the dark background */
     html, body {
@@ -24,7 +24,7 @@
       padding: 0;
       width: 100%;
       height: 100vh;
-      background-color: #111115; /* Fallback dark color */
+      background-color: #111115;
     }
 
     /* --- MAIN ROOM BACKGROUND --- */
@@ -36,8 +36,8 @@
       background: linear-gradient(to bottom, #1e1e24 0%, #111115 100%);
       overflow: hidden;
       font-family: system-ui, -apple-system, sans-serif;
-      user-select: none;
       -webkit-user-select: none;
+      user-select: none;
       transition: color 0.4s ease;
     }
 
@@ -71,8 +71,8 @@
     .switch-frame {
       padding: 12px;
       background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       border-radius: 90px;
       box-shadow: 
         inset 0 -4px 6px rgba(255, 255, 255, 0.1),
@@ -275,9 +275,8 @@
     async function sendGoveeCommand(macAddress, turnOn) {
       const url = 'https://developer-api.govee.com/v1/devices/control';
       
-      // Clean up the MAC address formatting automatically:
-      // Removes colons and makes all letters lowercase (e.g., e072a17f0c84)
-      const cleanMac = macAddress.replace(/:/g, '').toLowerCase();
+      // Fixed formatting: removes colons and forces UPPERCASE to match Govee specs
+      const cleanMac = macAddress.replace(/:/g, '').toUpperCase();
 
       const data = {
         device: cleanMac,
@@ -299,7 +298,7 @@
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error(`Govee Server Error Response for ${macAddress}:`, errorData);
+        console.error(`Govee Server Error Response for ${macAddress} (Sent as ${cleanMac}):`, errorData);
         throw new Error(`Failed to control bulb: ${macAddress}`);
       }
       
@@ -355,9 +354,12 @@
       const roomOnTop = [254, 252, 232], roomOnBot = [253, 230, 138];
       document.body.style.background = `linear-gradient(to bottom, ${mixColors(roomOffTop, roomOnTop, percentage)} 0%, ${mixColors(roomOffBot, roomOnBot, percentage)} 100%)`;
 
-      // Update theme meta color tag dynamically as the gradient changes
       const currentTopColor = mixColors(roomOffTop, roomOnTop, percentage);
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', currentTopColor);
+      
+      const themeMeta = document.querySelector('meta[name="theme-color"]');
+      if(themeMeta) {
+        themeMeta.setAttribute('content', currentTopColor);
+      }
 
       document.body.style.color = mixColors([244, 244, 245], [24, 24, 27], percentage);
       modeTitle.style.color = mixColors([255, 255, 255], [146, 64, 14], percentage);
