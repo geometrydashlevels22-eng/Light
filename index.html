@@ -16,9 +16,8 @@
   <link rel="apple-touch-icon" href="icon.jpg?v=1">
   <link rel="icon" sizes="192x192" href="icon.jpg?v=1">
 
-  <title>JFFFI's Room Light</title>
+  <title>Vertical Room Light Switch App</title>
   <style>
-    /* Ensure the absolute root elements have zero spacing and inherit the dark background */
     html, body {
       margin: 0;
       padding: 0;
@@ -27,7 +26,6 @@
       background-color: #111115;
     }
 
-    /* --- MAIN ROOM BACKGROUND --- */
     body {
       display: flex;
       flex-direction: column;
@@ -41,7 +39,6 @@
       transition: color 0.4s ease;
     }
 
-    /* --- TEXT INTERFACE --- */
     .interface-text {
       z-index: 2;
       text-align: center;
@@ -63,7 +60,6 @@
       opacity: 0.7;
     }
 
-    /* --- THE VERTICAL TOGGLE SWITCH CONTROLS --- */
     .switch-ui-wrapper {
       z-index: 2;
     }
@@ -82,7 +78,6 @@
       transition: background 0.4s, box-shadow 0.4s;
     }
 
-    /* Outer bezel shifts when light goes on */
     .switch-frame.frame-light-on {
       background: rgba(0, 0, 0, 0.05);
       box-shadow: 
@@ -118,7 +113,6 @@
       z-index: 1;
     }
 
-    /* --- SWITCH INDOOR LIGHTING ASSETS --- */
     .dark-assets {
       position: absolute;
       width: 100%;
@@ -163,7 +157,6 @@
       transform-origin: top;
     }
 
-    /* --- THE THUMB (Vertical Traveling Lightbulb) --- */
     .toggle-thumb {
       position: absolute;
       left: 10px;
@@ -261,59 +254,24 @@
     let isLightOn = false;
 
     // ==========================================
-    // GOVEE API CONFIGURATION (UPDATED KEY)
+    // ACTIVE IFTTT WEBHOOK INTEGRATION
     // ==========================================
-    const API_KEY = '2f49c4ac-5fa7-4978-b241-8d9eba2a1ac7'; 
-    const MODEL = 'H600D';
-    const BULBS = [
-      'E0:72:A1:7F:0C:84', // Bulb 3
-      'E0:72:A1:7D:1A:D8', // Bulb 2
-      'E0:72:A1:7F:75:50'  // Bulb 1
-    ];
+    const IFTTT_KEY = 'eUkeIGW8fRHDaG_oGywQ3H29_IsbxX2jHZThrm1LVWA'; 
 
-    // Core function to control an individual Govee bulb
-    async function sendGoveeCommand(macAddress, turnOn) {
-      const url = 'https://developer-api.govee.com/v1/devices/control';
-      const cleanMac = macAddress.replace(/:/g, '').toUpperCase();
-
-      const data = {
-        device: cleanMac,
-        model: MODEL,
-        cmd: {
-          name: 'turn',
-          value: turnOn ? 'on' : 'off'
-        }
-      };
-
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Govee-API-Key': API_KEY
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error(`Govee Server Error Response for ${macAddress} (Sent as ${cleanMac}):`, errorData);
-        throw new Error(`Failed to control bulb: ${macAddress}`);
-      }
-      
-      return response.json();
-    }
-
-    // Triggers all three bulbs safely at the same time
     async function triggerRealLight(turnOn) {
-      console.log(`Sending Govee command: ${turnOn ? 'ON' : 'OFF'}`);
+      const eventName = turnOn ? 'lights_on' : 'lights_off';
+      const url = `https://maker.ifttt.com/trigger/${eventName}/with/key/${IFTTT_KEY}`;
+      
+      console.log(`Sending Webhook to IFTTT: ${eventName}`);
       
       try {
-        await Promise.all(BULBS.map(mac => sendGoveeCommand(mac, turnOn)));
-        console.log("All bulbs updated successfully!");
+        await fetch(url, {
+          method: 'POST',
+          mode: 'no-cors'
+        });
+        console.log("IFTTT web signal sent successfully!");
       } catch (err) {
-        console.error("Error connecting to Govee bulbs:", err);
-        modeDesc.innerText = "Error controlling lights. Check console log.";
-        modeDesc.style.color = "#ff4757";
+        console.error("Error communicating with IFTTT:", err);
       }
     }
 
@@ -391,7 +349,6 @@
       }, 400);
     }
 
-    // --- DRAG EVENTS ---
     function onStart(e) {
       isDragging = true;
       const clientY = e.touches ? e.touches[0].clientY : e.clientY;
