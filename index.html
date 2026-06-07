@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="icon.jpg?v=1">
   <link rel="icon" sizes="192x192" href="icon.jpg?v=1">
 
-  <title>JFFFI's Light</title>
+  <title>JFFFI's Room Light</title>
   <style>
     /* Ensure the absolute root elements have zero spacing and inherit the dark background */
     html, body {
@@ -261,9 +261,9 @@
     let isLightOn = false;
 
     // ==========================================
-    // GOVEE API CONFIGURATION
+    // GOVEE API CONFIGURATION (UPDATED KEY)
     // ==========================================
-    const API_KEY = '31573012-d275-449e-a409-59f4a1b6dd23'; 
+    const API_KEY = '2f49c4ac-5fa7-4978-b241-8d9eba2a1ac7'; 
     const MODEL = 'H600D';
     const BULBS = [
       'E0:72:A1:7F:0C:84', // Bulb 3
@@ -274,8 +274,6 @@
     // Core function to control an individual Govee bulb
     async function sendGoveeCommand(macAddress, turnOn) {
       const url = 'https://developer-api.govee.com/v1/devices/control';
-      
-      // Fixed formatting: removes colons and forces UPPERCASE to match Govee specs
       const cleanMac = macAddress.replace(/:/g, '').toUpperCase();
 
       const data = {
