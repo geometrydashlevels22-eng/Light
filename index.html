@@ -6,15 +6,15 @@
   
   <meta name="theme-color" content="#1e1e24">
 
-  <meta name="apple-mobile-web-app-title" content="Room Light">
-  <meta name="application-name" content="Room Light">
+  <meta name="apple-mobile-web-app-title" content="Light">
+  <meta name="application-name" content="Light">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="icon" sizes="192x192" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.jpg">
+  <link rel="icon" sizes="192x192" href="icon.jpg">
 
   <title>Vertical Room Light Switch App</title>
   <style>
@@ -261,7 +261,7 @@
     let isLightOn = false;
 
     // ==========================================
-    // GOVEE API CONFIGURATION (UPDATED!)
+    // GOVEE API CONFIGURATION
     // ==========================================
     const API_KEY = '31573012-d275-449e-a409-59f4a1b6dd23'; 
     const MODEL = 'H600D';
@@ -274,6 +274,7 @@
     // Core function to control an individual Govee bulb
     async function sendGoveeCommand(macAddress, turnOn) {
       const url = 'https://developer-api.govee.com/v1/devices/control';
+      
       const data = {
         device: macAddress,
         model: MODEL,
@@ -293,8 +294,11 @@
       });
 
       if (!response.ok) {
+        const errorData = await response.text();
+        console.error(`Govee Server Error Response for ${macAddress}:`, errorData);
         throw new Error(`Failed to control bulb: ${macAddress}`);
       }
+      
       return response.json();
     }
 
@@ -307,7 +311,7 @@
         console.log("All bulbs updated successfully!");
       } catch (err) {
         console.error("Error connecting to Govee bulbs:", err);
-        modeDesc.innerText = "Error controlling lights. Check internet or API key.";
+        modeDesc.innerText = "Error controlling lights. Check console log.";
         modeDesc.style.color = "#ff4757";
       }
     }
@@ -376,7 +380,7 @@
       
       modeTitle.innerText = isLightOn ? "Room Illuminated" : "Lights Out";
       modeDesc.innerText = isLightOn ? "Drag down to turn off lights" : "Drag up to illuminate the room";
-      modeDesc.style.color = isLightOn ? "" : "#b2bec3"; // reset error color if fine
+      modeDesc.style.color = isLightOn ? "" : "#b2bec3"; 
 
       setTimeout(() => {
         elements.forEach(el => el.classList.remove('smooth-animate', 'smooth-bg'));
