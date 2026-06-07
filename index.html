@@ -1,133 +1,437 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benjamin's Room Light Switch</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        h1 {
-            color: #00adb5;
-            margin-bottom: 30px;
-        }
-        .container {
-            background-color: #1e1e1e;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            text-align: center;
-        }
-        .btn {
-            font-size: 1.2rem;
-            padding: 15px 40px;
-            margin: 10px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.1s, background-color 0.2s;
-        }
-        .btn:active {
-            transform: scale(0.95);
-        }
-        .btn-on {
-            background-color: #00adb5;
-            color: white;
-        }
-        .btn-on:hover {
-            background-color: #00f5ff;
-        }
-        .btn-off {
-            background-color: #393e46;
-            color: #eeeeee;
-        }
-        .btn-off:hover {
-            background-color: #4f5663;
-        }
-        #status {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #b2bec3;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <meta name="theme-color" content="#1e1e24">
+
+  <meta name="apple-mobile-web-app-title" content="Room Light">
+  <meta name="application-name" content="Room Light">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" sizes="192x192" href="icon.png">
+
+  <title>Vertical Room Light Switch App</title>
+  <style>
+    /* Ensure the absolute root elements have zero spacing and inherit the dark background */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: #111115; /* Fallback dark color */
+    }
+
+    /* --- MAIN ROOM BACKGROUND --- */
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to bottom, #1e1e24 0%, #111115 100%);
+      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: color 0.4s ease;
+    }
+
+    /* --- TEXT INTERFACE --- */
+    .interface-text {
+      z-index: 2;
+      text-align: center;
+      margin-bottom: 40px;
+      color: #f4f4f5;
+      pointer-events: none;
+    }
+
+    .interface-text h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .interface-text p {
+      margin: 5px 0 0 0;
+      font-size: 1.1rem;
+      opacity: 0.7;
+    }
+
+    /* --- THE VERTICAL TOGGLE SWITCH CONTROLS --- */
+    .switch-ui-wrapper {
+      z-index: 2;
+    }
+
+    .switch-frame {
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 90px;
+      box-shadow: 
+        inset 0 -4px 6px rgba(255, 255, 255, 0.1),
+        inset 0 4px 6px rgba(0, 0, 0, 0.4),
+        0 20px 40px rgba(0, 0, 0, 0.5);
+      touch-action: none; 
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+
+    /* Outer bezel shifts when light goes on */
+    .switch-frame.frame-light-on {
+      background: rgba(0, 0, 0, 0.05);
+      box-shadow: 
+        inset 0 -4px 6px rgba(255, 255, 255, 0.6),
+        inset 0 4px 6px rgba(0, 0, 0, 0.05),
+        0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle-label {
+      position: relative;
+      display: block;
+      width: 130px;
+      height: 280px;
+      background: linear-gradient(to bottom, #27272a, #3f3f46);
+      border-radius: 65px;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 
+        inset 0 8px 10px rgba(0, 0, 0, 0.5),
+        inset 0 -3px 6px rgba(255, 255, 255, 0.1);
+    }
+
+    .toggle-label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, #fbbf24, #fef08a);
+      border-radius: 65px;
+      opacity: 0;
+      z-index: 1;
+    }
+
+    /* --- SWITCH INDOOR LIGHTING ASSETS --- */
+    .dark-assets {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      opacity: 1;
+    }
+    .pendant-cord {
+      position: absolute;
+      bottom: 0; left: 64px;
+      width: 2px; height: 50px;
+      background: #71717a;
+    }
+    .pendant-shade {
+      position: absolute;
+      bottom: 50px; left: 47px;
+      width: 36px; height: 22px;
+      background: #a1a1aa;
+      border-radius: 2px 2px 12px 12px;
+    }
+
+    .light-assets {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      opacity: 0;
+    }
+    .desk-lamp-base {
+      position: absolute;
+      top: 25px; left: 45px;
+      width: 40px; height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    .desk-lamp-arm {
+      position: absolute;
+      top: 33px; left: 62px;
+      width: 6px; height: 40px;
+      background: #475569;
+      transform: rotate(25deg);
+      transform-origin: top;
+    }
+
+    /* --- THE THUMB (Vertical Traveling Lightbulb) --- */
+    .toggle-thumb {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #52525b 0%, #27272a 100%);
+      box-shadow: 
+        0 8px 16px rgba(0, 0, 0, 0.4),
+        inset 0 4px 6px rgba(255, 255, 255, 0.1),
+        inset 0 -4px 6px rgba(0, 0, 0, 0.4);
+      z-index: 5;
+      overflow: hidden;
+      transform: translateY(0px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .filament {
+      position: absolute;
+      width: 24px;
+      height: 34px;
+      border: 3px solid #71717a;
+      border-radius: 50% 50% 40% 40%;
+      opacity: 0.6;
+    }
+    .filament-glow {
+      position: absolute;
+      width: 10px;
+      height: 14px;
+      background: #a1a1aa;
+      bottom: 35px;
+      border-radius: 2px;
+      opacity: 0.5;
+    }
+
+    .smooth-animate {
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .smooth-bg {
+      transition: background 0.4s cubic-bezier(0.25, 1, 0.5, 1), color 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Room Lights</h1>
-        <button class="btn btn-on" onclick="controlLights(1)">TURN ON</button>
-        <button class="btn btn-off" onclick="controlLights(0)">TURN OFF</button>
-        <div id="status">Ready</div>
-    </div>
+  <div class="interface-text">
+    <h1 id="modeTitle">Lights Out</h1>
+    <p id="modeDesc">Drag up to illuminate the room</p>
+  </div>
 
-    <script>
-        // --- YOUR GOVEE CONFIGURATION ---
-        const API_KEY = '31573012-d275-449e-a409-59f4a1b6dd23'; 
-        const MODEL = 'H600D';
+  <div class="switch-ui-wrapper">
+    <div class="switch-frame" id="switchContainer">
+      <div class="toggle-label">
         
-        // List of your 3 bulb MAC addresses
-        const BULBS = [
-            'E0:72:A1:7F:0C:84', // Bulb 3
-            'E0:72:A1:7D:1A:D8', // Bulb 2
-            'E0:72:A1:7F:75:50'  // Bulb 1
-        ];
+        <div class="light-assets" id="lightAssets">
+          <div class="desk-lamp-base"></div>
+          <div class="desk-lamp-arm"></div>
+        </div>
+        
+        <div class="toggle-thumb" id="thumb">
+          <div class="filament" id="bulbFilament"></div>
+          <div class="filament-glow" id="bulbBase"></div>
+        </div>
 
-        // Function to send the command to a single bulb
-        async function sendLightCommand(macAddress, state) {
-            const url = 'https://developer-api.govee.com/v1/devices/control';
-            
-            const data = {
-                device: macAddress,
-                model: MODEL,
-                cmd: {
-                    name: 'turn',
-                    value: state === 1 ? 'on' : 'off'
-                }
-            };
+        <div class="dark-assets" id="darkAssets">
+          <div class="pendant-cord"></div>
+          <div class="pendant-shade"></div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Govee-API-Key': API_KEY
-                },
-                body: JSON.stringify(data)
-            });
+  <script>
+    const container = document.getElementById('switchContainer');
+    const thumb = document.getElementById('thumb');
+    const label = document.querySelector('.toggle-label');
+    const darkAssets = document.getElementById('darkAssets');
+    const lightAssets = document.getElementById('lightAssets');
+    const bulbFilament = document.getElementById('bulbFilament');
+    const bulbBase = document.getElementById('bulbBase');
+    
+    const modeTitle = document.getElementById('modeTitle');
+    const modeDesc = document.getElementById('modeDesc');
 
-            if (!response.ok) {
-                throw new Error(`Failed for ${macAddress}`);
-            }
-            return response.json();
+    const maxBottom = 0;
+    const maxTop = -150; 
+    
+    let isDragging = false;
+    let startY = 0;
+    let currentY = 0; 
+    let isLightOn = false;
+
+    // ==========================================
+    // GOVEE API CONFIGURATION (UPDATED!)
+    // ==========================================
+    const API_KEY = '31573012-d275-449e-a409-59f4a1b6dd23'; 
+    const MODEL = 'H600D';
+    const BULBS = [
+      'E0:72:A1:7F:0C:84', // Bulb 3
+      'E0:72:A1:7D:1A:D8', // Bulb 2
+      'E0:72:A1:7F:75:50'  // Bulb 1
+    ];
+
+    // Core function to control an individual Govee bulb
+    async function sendGoveeCommand(macAddress, turnOn) {
+      const url = 'https://developer-api.govee.com/v1/devices/control';
+      const data = {
+        device: macAddress,
+        model: MODEL,
+        cmd: {
+          name: 'turn',
+          value: turnOn ? 'on' : 'off'
         }
+      };
 
-        // Function loops through all bulbs when you press a button
-        async function controlLights(state) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerText = state === 1 ? "Turning lights on..." : "Turning lights off...";
-            statusDiv.style.color = "#00adb5";
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Govee-API-Key': API_KEY
+        },
+        body: JSON.stringify(data)
+      });
 
-            try {
-                // Send commands to all three bulbs at the same time
-                await Promise.all(BULBS.map(mac => sendLightCommand(mac, state)));
-                
-                statusDiv.innerText = state === 1 ? "Lights are ON" : "Lights are OFF";
-                statusDiv.style.color = "#2ed573";
-            } catch (error) {
-                console.error(error);
-                statusDiv.innerText = "Error controlling some lights. Check console/API key.";
-                statusDiv.style.color = "#ff4757";
-            }
-        }
-    </script>
+      if (!response.ok) {
+        throw new Error(`Failed to control bulb: ${macAddress}`);
+      }
+      return response.json();
+    }
+
+    // Triggers all three bulbs safely at the same time
+    async function triggerRealLight(turnOn) {
+      console.log(`Sending Govee command: ${turnOn ? 'ON' : 'OFF'}`);
+      
+      try {
+        await Promise.all(BULBS.map(mac => sendGoveeCommand(mac, turnOn)));
+        console.log("All bulbs updated successfully!");
+      } catch (err) {
+        console.error("Error connecting to Govee bulbs:", err);
+        modeDesc.innerText = "Error controlling lights. Check internet or API key.";
+        modeDesc.style.color = "#ff4757";
+      }
+    }
+
+    function mixColors(color1, color2, weight) {
+      const p = weight;
+      const w = p * 2 - 1;
+      const w1 = (w + 1) / 2;
+      const w2 = 1 - w1;
+      
+      const r = Math.round(color1[0] * w2 + color2[0] * w1);
+      const g = Math.round(color1[1] * w2 + color2[1] * w1);
+      const b = Math.round(color1[2] * w2 + color2[2] * w1);
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    function updateVisuals(percentage) {
+      thumb.style.transform = `translateY(${currentY}px)`;
+      
+      const bulbOffTop = [82, 82, 91], bulbOffBot = [39, 39, 42];
+      const bulbOnTop = [254, 240, 138], bulbOnBot = [245, 158, 11];
+      thumb.style.background = `linear-gradient(135deg, ${mixColors(bulbOffTop, bulbOnTop, percentage)} 0%, ${mixColors(bulbOffBot, bulbOnBot, percentage)} 100%)`;
+      
+      bulbFilament.style.borderColor = mixColors([113, 113, 122], [251, 191, 36], percentage);
+      bulbFilament.style.opacity = 0.6 + (0.4 * percentage);
+      bulbBase.style.background = mixColors([161, 161, 170], [254, 243, 199], percentage);
+
+      document.styleSheets[0].addRule('.toggle-label::before', `opacity: ${percentage};`);
+      
+      darkAssets.style.opacity = 1 - percentage;
+      darkAssets.style.transform = `translateY(${15 * percentage}px)`;
+      
+      lightAssets.style.opacity = percentage;
+      lightAssets.style.transform = `translateY(${-15 + (15 * percentage)}px)`;
+
+      const roomOffTop = [30, 30, 36], roomOffBot = [17, 17, 21];
+      const roomOnTop = [254, 252, 232], roomOnBot = [253, 230, 138];
+      document.body.style.background = `linear-gradient(to bottom, ${mixColors(roomOffTop, roomOnTop, percentage)} 0%, ${mixColors(roomOffBot, roomOnBot, percentage)} 100%)`;
+
+      // Update theme meta color tag dynamically as the gradient changes
+      const currentTopColor = mixColors(roomOffTop, roomOnTop, percentage);
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', currentTopColor);
+
+      document.body.style.color = mixColors([244, 244, 245], [24, 24, 27], percentage);
+      modeTitle.style.color = mixColors([255, 255, 255], [146, 64, 14], percentage);
+    }
+
+    function snapToState(activatedState) {
+      if (isLightOn !== activatedState) {
+        triggerRealLight(activatedState);
+      }
+
+      isLightOn = activatedState;
+      currentY = isLightOn ? maxTop : maxBottom;
+      
+      const elements = [thumb, darkAssets, lightAssets, bulbFilament, bulbBase, document.body, modeTitle, container];
+      elements.forEach(el => el.classList.add('smooth-animate', 'smooth-bg'));
+
+      if (isLightOn) {
+        container.classList.add('frame-light-on');
+      } else {
+        container.classList.remove('frame-light-on');
+      }
+
+      updateVisuals(isLightOn ? 1 : 0);
+      
+      modeTitle.innerText = isLightOn ? "Room Illuminated" : "Lights Out";
+      modeDesc.innerText = isLightOn ? "Drag down to turn off lights" : "Drag up to illuminate the room";
+      modeDesc.style.color = isLightOn ? "" : "#b2bec3"; // reset error color if fine
+
+      setTimeout(() => {
+        elements.forEach(el => el.classList.remove('smooth-animate', 'smooth-bg'));
+      }, 400);
+    }
+
+    // --- DRAG EVENTS ---
+    function onStart(e) {
+      isDragging = true;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      startY = clientY - currentY;
+    }
+
+    function onMove(e) {
+      if (!isDragging) return;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      let newY = clientY - startY;
+
+      if (newY > maxBottom) newY = maxBottom;
+      if (newY < maxTop) newY = maxTop;
+
+      currentY = newY;
+
+      if (currentY === maxTop) isLightOn = true;
+      if (currentY === maxBottom) isLightOn = false;
+
+      const percentage = currentY / maxTop;
+      updateVisuals(percentage);
+    }
+
+    function onEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      if (currentY <= maxTop + 15) {
+        snapToState(true);
+      } else if (currentY >= maxBottom - 15) {
+        snapToState(false);
+      } else {
+        snapToState(currentY < maxTop / 2);
+      }
+    }
+
+    container.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+
+    container.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onEnd);
+
+    container.addEventListener('click', () => {
+      if (Math.abs(currentY - (isLightOn ? maxTop : maxBottom)) > 15) return;
+      snapToState(!isLightOn);
+    });
+  </script>
 </body>
 </html>
